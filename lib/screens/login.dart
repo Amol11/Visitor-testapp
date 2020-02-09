@@ -74,14 +74,12 @@ class LoginPgState extends State<LoginPg> {
                     style: TextStyle(fontSize: 15.0, color: Colors.white),
                   ),
                   onPressed: () {
-                    if (true) {
                       setState(
                             () {
                           getImage(ImageSource.camera);
                           cameraButtonTxt = 'Reupload Photo';
                         },
                       );
-                    }
                   },
                 )),
             Padding(

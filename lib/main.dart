@@ -10,7 +10,6 @@ class VisitorApp extends StatelessWidget{
     //SystemChrome.setEnabledSystemUIOverlays ([]);
     return MaterialApp(
       theme: ThemeData.dark(),
-      //home: LoginPg,
       home: LoginPg(),
     );
   }
