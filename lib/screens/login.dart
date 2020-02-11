@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:visitor_testapp/functions/camera.dart';
+import 'package:visitor_testapp/widgets/camera.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:visitor_testapp/functions/snackbar.dart';
+import 'package:visitor_testapp/widgets/snackbar.dart';
 import 'dart:io';
 
 class LoginPg extends StatefulWidget {
@@ -15,6 +15,7 @@ class LoginPgState extends State<LoginPg> {
   var cameraButtonTxt = 'Open Camera';
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final TextEditingController _phoneNo = TextEditingController();
+
 
   @override
   Widget build(BuildContext context) {
@@ -39,8 +40,7 @@ class LoginPgState extends State<LoginPg> {
                 validator: (String value) {
                   if (value.isEmpty || value.length != 10) {
                     return "Invalid phone number";
-                  }
-                  else
+                  } else
                     return null;
                 },
                 decoration: InputDecoration(
@@ -64,24 +64,43 @@ class LoginPgState extends State<LoginPg> {
                 ),
               ),
             ),
-            Padding(
-                padding: EdgeInsets.all(10.0),
-                child: RaisedButton(
-                  elevation: 5.0,
-                  color: Colors.purple,
-                  child: Text(
-                    cameraButtonTxt,
-                    style: TextStyle(fontSize: 15.0, color: Colors.white),
-                  ),
-                  onPressed: () {
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.all(10.0),
+                  child: RaisedButton(
+                    elevation: 5.0,
+                    color: Colors.purple,
+                    child: Text(
+                      cameraButtonTxt,
+                      style: TextStyle(fontSize: 15.0, color: Colors.white),
+                    ),
+                    onPressed: () {
                       setState(
-                            () {
+                        () {
                           getImage(ImageSource.camera);
                           cameraButtonTxt = 'Reupload Photo';
                         },
                       );
-                  },
-                )),
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(10.0),
+                  child: RaisedButton(
+                    disabledColor: Colors.white12,
+                    elevation: 5.0,
+                    color: Colors.purple,
+                    child: Text(
+                      'Remove Photo',
+                      style: TextStyle(fontSize: 15.0, color: Colors.white),
+                    ),
+                    onPressed: _selectedFile == null ? null : _buttonController
+                  ),
+                ),
+              ],
+            ),
             Padding(
               padding: EdgeInsets.all(10.0),
               child: RaisedButton(
@@ -92,8 +111,11 @@ class LoginPgState extends State<LoginPg> {
                 onPressed: () {
                   final FormState form = _formKey.currentState;
                   form.save();
-                  if (_formKey.currentState.validate()) {
-                    showSnackBar('Done', _scaffoldKey);
+                  if (_selectedFile == null) {
+                    showSnackBar('Photo required!', _scaffoldKey);
+                    if (_formKey.currentState.validate()) {
+                      showSnackBar('Done', _scaffoldKey);
+                    }
                   }
                 },
               ),
@@ -104,7 +126,13 @@ class LoginPgState extends State<LoginPg> {
     );
   }
 
-  getImage(ImageSource source) async{
+  _buttonController(){
+    setState(() {
+      _selectedFile = null;
+    });
+  }
+
+  getImage(ImageSource source) async {
     try {
       File image = await ImagePicker.pickImage(source: ImageSource.camera);
       if (image != null) {
@@ -112,9 +140,7 @@ class LoginPgState extends State<LoginPg> {
           _selectedFile = image;
         });
       }
-    }
-    
-    catch(e){
+    } catch (e) {
       showSnackBar('Error: Camera inaccessible.', _scaffoldKey);
     }
   }
