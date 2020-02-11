@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 void showSnackBar(String message,final GlobalKey<ScaffoldState> _scaffoldKey) {
   var snackBar = SnackBar(
+    duration: Duration(seconds: 1),
     backgroundColor: Colors.purple,
     content: Text(
       message,

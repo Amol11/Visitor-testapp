@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:visitor_testapp/widgets/camera.dart';
+import 'package:visitor_testapp/common/widgets/camera.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:visitor_testapp/widgets/snackbar.dart';
+import 'package:visitor_testapp/common/widgets/snackbar.dart';
+import 'package:visitor_testapp/common/widgets/alertDialog.dart';
 import 'dart:io';
 
 class LoginPg extends StatefulWidget {
@@ -16,10 +17,8 @@ class LoginPgState extends State<LoginPg> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final TextEditingController _phoneNo = TextEditingController();
 
-
   @override
   Widget build(BuildContext context) {
-    //SystemChrome.setEnabledSystemUIOverlays ([]);
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -43,6 +42,7 @@ class LoginPgState extends State<LoginPg> {
                   } else
                     return null;
                 },
+                //autovalidate: true,
                 decoration: InputDecoration(
                   labelText: 'Phone Number',
                   hintText: 'Phone Number',
@@ -89,15 +89,15 @@ class LoginPgState extends State<LoginPg> {
                 Padding(
                   padding: EdgeInsets.all(10.0),
                   child: RaisedButton(
-                    disabledColor: Colors.white12,
-                    elevation: 5.0,
-                    color: Colors.purple,
-                    child: Text(
-                      'Remove Photo',
-                      style: TextStyle(fontSize: 15.0, color: Colors.white),
-                    ),
-                    onPressed: _selectedFile == null ? null : _buttonController
-                  ),
+                      disabledColor: Colors.white12,
+                      elevation: 5.0,
+                      color: Colors.purple,
+                      child: Text(
+                        'Remove Photo',
+                        style: TextStyle(fontSize: 15.0, color: Colors.white),
+                      ),
+                      onPressed:
+                          _selectedFile == null ? null : _buttonController),
                 ),
               ],
             ),
@@ -109,14 +109,18 @@ class LoginPgState extends State<LoginPg> {
                 child: Text('Submit',
                     style: TextStyle(fontSize: 15.0, color: Colors.white)),
                 onPressed: () {
-                  final FormState form = _formKey.currentState;
-                  form.save();
-                  if (_selectedFile == null) {
-                    showSnackBar('Photo required!', _scaffoldKey);
-                    if (_formKey.currentState.validate()) {
-                      showSnackBar('Done', _scaffoldKey);
+                  setState(() {
+                    final FormState form = _formKey.currentState;
+                    form.save();
+                    if (_selectedFile == null)
+                      showSnackBar('Photo required!', _scaffoldKey);
+                    else if(_selectedFile != null){
+                      if (_formKey.currentState.validate()) {
+                        showAlert('Do you really want to send an OTP to +91${_phoneNo.text} ?', 'Confirmation', context);
+                        showSnackBar('Done', _scaffoldKey);
+                      }
                     }
-                  }
+                  });
                 },
               ),
             )
@@ -126,7 +130,7 @@ class LoginPgState extends State<LoginPg> {
     );
   }
 
-  _buttonController(){
+  _buttonController() {
     setState(() {
       _selectedFile = null;
     });
