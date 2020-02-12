@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-void showAlert(String dialogString, String dialogTitle, context) {
+showAlert(String dialogString, String dialogTitle, context, [onYesPress]) {
   AlertDialog dialog = AlertDialog(
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(10.0),
@@ -26,7 +26,8 @@ void showAlert(String dialogString, String dialogTitle, context) {
       ),
       FlatButton(
         onPressed: () {
-          Navigator.pop(context);
+          onYesPress();
+          Navigator.of(context).pop();
         },
         child: Text(
           'Yes',
@@ -42,5 +43,3 @@ void showAlert(String dialogString, String dialogTitle, context) {
         return dialog;
       });
 }
-
-void dialogResult() {}
