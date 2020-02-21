@@ -23,17 +23,16 @@ class LoginPgState extends State<LoginPg> {
   Future<void> verifyPhone() async {
     final PhoneCodeAutoRetrievalTimeout autoRetrieve = (String verId) {
       this.verificationId = verId;
-      smsCodeDialog(context).then((value){
-        print('Signed In');
+      smsCodeDialog(context).then((value) {
         signIn();
       });
     };
 
     final PhoneCodeSent smsCodeSent = (String verId, [int forceCodeResend]) {
       this.verificationId = verId;
-      smsCodeDialog(context).then((value){
-        print('Signed In');
+      smsCodeDialog(context).then((value) {
         signIn();
+        print('Signed In');
       });
     };
 
@@ -43,7 +42,11 @@ class LoginPgState extends State<LoginPg> {
 
     PhoneVerificationFailed veriFailed(AuthException exception) {
       print('${exception.message}');
-    };
+      if(exception.message == 'We have blocked all requests from this device due to unusual activity. Try again later.')
+        showSnackBar('Maximum number of allowed requests reached. Please retry later.', _scaffoldKey);
+    }
+
+    ;
 
     await FirebaseAuth.instance.verifyPhoneNumber(
         phoneNumber: '+91${_phoneNo.text}',
@@ -58,12 +61,12 @@ class LoginPgState extends State<LoginPg> {
     final AuthCredential credential = PhoneAuthProvider.getCredential(
         verificationId: verificationId, smsCode: smsCode);
 
-    FirebaseAuth.instance.signInWithCredential(credential)
-        .then((user) {
-          print('Welcome ${_phoneNo.text}');
-//      showSnackBar('Welcome ${_phoneNo.text}',
-//          _scaffoldKey);
+    FirebaseAuth.instance.signInWithCredential(credential).then((user) {
+      print("signed In");
+      print('Welcome ${_phoneNo.text}');
+      showSnackBar('Welcome ${_phoneNo.text}', _scaffoldKey);
     }).catchError((e) {
+      showSnackBar('Authentication Failed. Please retry later.', _scaffoldKey);
       print('Auth Credential Error: $e');
     });
   }
@@ -73,7 +76,7 @@ class LoginPgState extends State<LoginPg> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        backgroundColor: Colors.purple,
+        backgroundColor: Colors.blue[600],
         title: Center(
           child: Text('Hello Visitor!'),
         ),
@@ -127,8 +130,9 @@ class LoginPgState extends State<LoginPg> {
                 Padding(
                   padding: EdgeInsets.all(10.0),
                   child: RaisedButton(
+                    splashColor: Colors.white,
                     elevation: 5.0,
-                    color: Colors.purple,
+                    color: Colors.blue[600],
                     child: Text(
                       _cameraButtonTxt,
                       style: TextStyle(fontSize: 15.0, color: Colors.white),
@@ -145,9 +149,10 @@ class LoginPgState extends State<LoginPg> {
                 Padding(
                   padding: EdgeInsets.all(10.0),
                   child: RaisedButton(
+                      splashColor: Colors.white,
                       disabledColor: Colors.white12,
                       elevation: 5.0,
-                      color: Colors.purple,
+                      color: Colors.blue[600],
                       child: Text(
                         'Remove Photo',
                         style: TextStyle(fontSize: 15.0, color: Colors.white),
@@ -160,8 +165,9 @@ class LoginPgState extends State<LoginPg> {
             Padding(
               padding: EdgeInsets.all(10.0),
               child: RaisedButton(
+                splashColor: Colors.white,
                 elevation: 5.0,
-                color: Colors.purple,
+                color: Colors.blue[600],
                 child: Text('Submit',
                     style: TextStyle(fontSize: 15.0, color: Colors.white)),
                 onPressed: () {
@@ -174,8 +180,9 @@ class LoginPgState extends State<LoginPg> {
                       if (_formKey.currentState.validate()) {
                         //verifyPhone();
                         showAlert(
-                            'Do you really want to send an OTP to +91${_phoneNo
-                                .text} ?', 'Confirmation', context);
+                            'Are you sure you want to send an OTP to +91${_phoneNo.text} ?',
+                            'Confirmation',
+                            context);
                       }
                     }
                   });
@@ -194,11 +201,18 @@ class LoginPgState extends State<LoginPg> {
         barrierDismissible: false,
         builder: (BuildContext context) {
           return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
             title: Text('Enter the OTP'),
-            content: TextField(
-              onChanged: (value) {
-                this.smsCode = value;
-              },
+            content: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: TextField(
+                keyboardType: TextInputType.numberWithOptions(),
+                onChanged: (value) {
+                  this.smsCode = value;
+                },
+              ),
             ),
             contentPadding: EdgeInsets.all(10.0),
             actions: <Widget>[
@@ -214,7 +228,10 @@ class LoginPgState extends State<LoginPg> {
                     }
                   });
                 },
-                child: Text('Done'),
+                child: Text(
+                  'Done',
+                  style: TextStyle(color: Colors.blue[600]),
+                ),
               )
             ],
           );
@@ -242,7 +259,7 @@ class LoginPgState extends State<LoginPg> {
           },
           child: Text(
             'No',
-            style: TextStyle(color: Colors.purpleAccent),
+            style: TextStyle(color: Colors.blue[600]),
           ),
         ),
         FlatButton(
@@ -252,7 +269,7 @@ class LoginPgState extends State<LoginPg> {
           },
           child: Text(
             'Yes',
-            style: TextStyle(color: Colors.purpleAccent),
+            style: TextStyle(color: Colors.blue[600]),
           ),
         ),
       ],
@@ -272,12 +289,12 @@ class LoginPgState extends State<LoginPg> {
     });
   }
 
-  textValidator(String value) {
-    if (value.isEmpty || value.length != 10) {
-      return "Invalid phone number";
-    } else
-      return null;
-  }
+//  textValidator(String value) {
+//    if (value.isEmpty || value.length != 10) {
+//      return "Invalid phone number";
+//    } else
+//      return null;
+//  }
 
   getImage(ImageSource source) async {
     try {
