@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:visitor_testapp/common/widgets/snackbar.dart';
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:visitor_testapp/common/widgets/upload_image.dart';
 
 class LoginPg extends StatefulWidget {
   @override
@@ -19,6 +20,7 @@ class LoginPgState extends State<LoginPg> {
 
   String verificationId;
   String smsCode;
+  String _userId = null;
 
   Future<void> verifyPhone() async {
     final PhoneCodeAutoRetrievalTimeout autoRetrieve = (String verId) {
@@ -46,8 +48,6 @@ class LoginPgState extends State<LoginPg> {
         showSnackBar('Maximum number of allowed requests reached. Please retry later.', _scaffoldKey);
     }
 
-    ;
-
     await FirebaseAuth.instance.verifyPhoneNumber(
         phoneNumber: '+91${_phoneNo.text}',
         timeout: const Duration(seconds: 0),
@@ -63,6 +63,7 @@ class LoginPgState extends State<LoginPg> {
 
     FirebaseAuth.instance.signInWithCredential(credential).then((user) {
       print("signed In");
+      uploadImage(_phoneNo, _selectedFile);
       print('Welcome ${_phoneNo.text}');
       showSnackBar('Welcome ${_phoneNo.text}', _scaffoldKey);
     }).catchError((e) {
